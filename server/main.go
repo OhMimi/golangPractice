@@ -17,7 +17,6 @@ func readPkg(conn net.Conn) (mes message.Message, err error) {
 		fmt.Printf("conn.Read(b) err = %v\n", err)
 		return
 	}
-	fmt.Println("test")
 	// fmt.Printf("讀到的buf = %v\n", buf[0:4])
 
 	// 根據buf[0:4]轉換成一個uint32的類型
@@ -36,7 +35,7 @@ func readPkg(conn net.Conn) (mes message.Message, err error) {
 		fmt.Printf("json.Unmarshal(buf[0:pkgLen]) err = %v\n", err)
 		return
 	}
-	_, err = conn.Read(buf[0:4])
+	// fmt.Println("mes=", mes)
 	return
 }
 

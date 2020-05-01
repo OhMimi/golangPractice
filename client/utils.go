@@ -34,7 +34,6 @@ func readPkg(conn net.Conn) (mes message.Message, err error) {
 		fmt.Printf("json.Unmarshal(buf[0:pkgLen]) err = %v\n", err)
 		return
 	}
-	_, err = conn.Read(buf[0:4])
 
 	return
 }
