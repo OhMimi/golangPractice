@@ -1,6 +1,7 @@
-package main
+package processer
 
 import (
+	"chatroom/client/utils"
 	"chatroom/common/message"
 	"encoding/binary"
 	"encoding/json"
@@ -8,7 +9,10 @@ import (
 	"net"
 )
 
-func login(userID int, userPwd string) (err error) {
+type UserProcess struct {
+}
+
+func (up *UserProcess) Login(userID int, userPwd string) (err error) {
 	// fmt.Printf("userID = %d userPwd = %s\n", userID, userPwd)
 
 	// 1. 連接到服務器
@@ -70,8 +74,13 @@ func login(userID int, userPwd string) (err error) {
 		return
 	}
 
+	// 創建一個Transfer實例
+	tf := &utils.Transfer{
+		Conn: conn,
+	}
+
 	// 這裡需要處理服務器端回傳的消息
-	mes, err = ReadPkg(conn)
+	mes, err = tf.ReadPkg()
 	if err != nil {
 		fmt.Printf("readPkg(conn) err = %v\n", err)
 		return
@@ -86,8 +95,16 @@ func login(userID int, userPwd string) (err error) {
 	}
 
 	if loginResMes.Code == 200 {
-		fmt.Println("登入成功")
-	} else if loginResMes.Code == 500 {
+		// fmt.Println("登入成功")
+		// 這裡需要起一個客戶端的協程
+		// 該協程保持與服務端的通訊，如果服務器有數據推送給客戶端
+		// 則接收並顯示在客戶端的終端
+		go serverProcessMes(conn)
+		// 1. 顯示成功登入後的菜單
+		for {
+			ShowMenu()
+		}
+	} else {
 		fmt.Println(loginResMes.Error)
 	}
 
