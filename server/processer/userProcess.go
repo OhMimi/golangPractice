@@ -80,3 +80,56 @@ func (up *UserProcess) ServerProcessLogin(mes *message.Message) (err error) {
 
 	return
 }
+
+func (up *UserProcess) ServerProcessRegister(mes *message.Message) (err error) {
+	// 1. 先從mes中取出mes.Data，並直接序列化成RegisterMes
+	var registerMes message.RegisterMes
+	err = json.Unmarshal([]byte(mes.Data), &registerMes)
+	if err != nil {
+		fmt.Printf("json.Unmarshal() err =%v\n", err)
+		return
+	}
+
+	var resMes message.Message
+	resMes.Type = message.RegisterResMesType
+	var registerResMes message.RegisterResMes
+	err = model.MyUserDao.Register(&registerMes.User)
+	if err != nil {
+		if err == model.ERROR_USER_EXISTED {
+			registerResMes.Code = 505
+			registerResMes.Error = model.ERROR_USER_EXISTED.Error()
+		} else {
+			registerResMes.Code = 506
+			registerResMes.Error = "註冊發生未知錯誤..."
+		}
+		// fmt.Printf("model.MyUserDao.Register() err = %v\n", err)
+	} else {
+		registerResMes.Code = 200
+	}
+
+	data, err := json.Marshal(registerResMes)
+	if err != nil {
+		fmt.Printf("json.Marshal = %v\n", err)
+		return
+	}
+
+	resMes.Data = string(data)
+
+	data, err = json.Marshal(resMes)
+	if err != nil {
+		fmt.Printf("json.Marshal = %v\n", err)
+		return
+	}
+
+	tf := &utils.Transfer{
+		Conn: up.Conn,
+	}
+
+	err = tf.WritePkg(data)
+	if err != nil {
+		fmt.Printf(" tf.WritePkg = %v\n", err)
+		return
+	}
+
+	return
+}

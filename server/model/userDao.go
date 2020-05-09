@@ -1,6 +1,7 @@
 package model
 
 import (
+	"chatroom/common/message"
 	"encoding/json"
 	"fmt"
 
@@ -72,5 +73,32 @@ func (ud *UserDao) Login(userID int, userPwd string) (user *User, err error) {
 	if user.UserPwd != userPwd {
 		err = ERROR_USER_PWDERROR
 	}
+	return
+}
+
+func (ud *UserDao) Register(user *message.User) (err error) {
+	// 先從UserDao取出一個連接
+	conn := ud.Pool.Get()
+	defer conn.Close()
+	_, err = ud.getUserByID(conn, user.UserID)
+	if err == nil {
+		err = ERROR_USER_EXISTED
+		return
+	}
+
+	// 此時證明此用戶尚未存在
+	data, err := json.Marshal(user)
+	if err != nil {
+		fmt.Printf("json.Marshal err = %v\n", err)
+		return
+	}
+
+	// 寫入redis
+	_, err = conn.Do("HSET", "users", user.UserID, string(data))
+	if err != nil {
+		fmt.Printf("conn.Do err = %v\n", err)
+		return
+	}
+
 	return
 }

@@ -24,12 +24,10 @@ type LoginResMes struct {
 }
 
 type RegisterMes struct {
-	UserID   int    `json:"userID"`   // 用戶ID
-	UserPwd  string `json:"userPwd"`  // 用戶密碼
-	UserName string `json:"userName"` // 用戶名
+	User User // 類型就是User結構體
 }
 
 type RegisterResMes struct {
-	Code  int    `json:"code"`  // 狀態碼 500 -> 該用戶未註冊  200 -> 登入成功
+	Code  int    `json:"code"`  // 狀態碼 400 -> 該用戶已存在  200 -> 登入成功
 	Error string `json:"error"` // 錯誤訊息
 }

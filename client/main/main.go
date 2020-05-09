@@ -8,6 +8,7 @@ import (
 // 定義兩個全局變量
 var userID int
 var userPwd string
+var userName string
 
 func main() {
 	fmt.Println("main")
@@ -41,7 +42,21 @@ func main() {
 			// loop = false
 		case 2:
 			fmt.Println("註冊用戶")
-			loop = false
+
+			fmt.Println("請輸入用戶的ID:")
+			fmt.Scanf("%d\n", &userID)
+			fmt.Println("請輸入用戶的密碼:")
+			fmt.Scanf("%s\n", &userPwd)
+			fmt.Println("請輸入用戶的名稱:")
+			fmt.Scanf("%s\n", &userName)
+			// 完成註冊
+			// 1. 創建一個UserProcess的實例
+			up := &processer.UserProcess{}
+			err := up.Register(userID, userPwd, userName)
+			if err != nil {
+				fmt.Printf("up.Register err = %v\n", err)
+			}
+			// loop = false
 		case 3:
 			fmt.Println("退出系統")
 			loop = false
